@@ -7,7 +7,7 @@ sys.path.append(
 
 from os.path import exists as file_exists
  
-from utils.client_request import ClientRequest
+from utils.parser import RequestParser
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5000
@@ -29,7 +29,7 @@ def handle_client(conn,addr):
     
     # while connected:
     msg = conn.recv(MSG_SIZE).decode(FORMAT)
-    client_request = ClientRequest(msg)
+    client_request = RequestParser(msg)
     
     print(addr,">",msg)
     if client_request.method == POST_REQUEST:

@@ -5,7 +5,7 @@ import os.path
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
  
-from utils.client_request import ClientRequest
+from utils.parser import *
 
 # SERVER_IP = socket.gethostbyname(socket.gethostname())
 # SERVER_PORT = 5000
@@ -32,11 +32,9 @@ def parse_request(request):
 
 if __name__=="__main__":
     
-
-    
     print("CLIENT STARTED")
     msg = input(">")
-    client_request = ClientRequest(msg)
+    client_request = RequestParser(msg)
     SERVER_IP = socket.gethostbyname(client_request.host_name)
 
     SERVER_PORT = client_request.port_number
@@ -48,8 +46,12 @@ if __name__=="__main__":
     client.connect(ADDR)
     print("client is connected to IP:",SERVER_IP,"PORT:",SERVER_PORT)
     client.send(msg.encode(FORMAT))
-    msg = client.recv(MSG_SIZE).decode(FORMAT)
-    print("SERVER>",msg)
+    
+    
+    received_msg = client.recv(MSG_SIZE).decode(FORMAT)
+    print("SERVER>",received_msg)
+
+    response_parser = ResponseParser(received_msg)
 
     if client_request.method == "POST":
 
@@ -60,22 +62,20 @@ if __name__=="__main__":
         file.close()
         client.close()
     
-    # elif client_request.method == "GET":
-    #      file = open(client_request.file_name,"w")
+    elif client_request.method == "GET":
+        if response_parser.status == 200:
+            file = open(client_request.file_name,"w")
+            file.write(response_parser.data)
+            file.close()
 
-    #      file.write()
-
-
+        #     i =0
+        # while received_msg[i] != "\n":
+        #     i = i+1
+        # file_content = received_msg[i+1:]
+        
 
         
-        
-        # if msg == DISCONNECT_MSG:
-        #     connected = False
-        # else:
-        #     msg = client.recv(MSG_SIZE).decode(FORMAT)
-        #     print("SERVER>",msg)
-
-
+        client.close()
 
 
     

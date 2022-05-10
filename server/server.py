@@ -24,7 +24,8 @@ NOT_FOUND_RESPONSE = "HTTP/1.0 404 Not Found\r\n"
 class Server:
     def __init__(self,port_number = PORT):
         self.server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        IP = socket.gethostbyname(socket.gethostname())
+        # IP = socket.gethostbyname(socket.gethostname())
+        IP = "127.0.0.1"
         ADDR = (IP,port_number)
 
         self.server.bind(ADDR)
@@ -49,8 +50,11 @@ class Server:
         
         msg = conn.recv(MSG_SIZE).decode(FORMAT)
         print(addr,">",msg)
-        client_request = RequestParser(msg)
-        
+        if msg != "":
+            client_request = RequestParser(msg)
+        else:
+            conn.close()
+            return
         
         if client_request.method == POST_REQUEST:
             self.handle_post_request(conn,addr,client_request)
@@ -83,7 +87,7 @@ class Server:
             return
         else:
 
-            msg = OK_RESPONSE
+            msg = OK_RESPONSE+"\r\n"
 
             file = open(client_request.file_name,"r")
             data = file.read()

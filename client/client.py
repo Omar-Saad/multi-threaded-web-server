@@ -2,9 +2,8 @@ from http import client
 import socket
 import sys
 import os.path
-from urllib import request
+from os.path import exists as file_exists
 
-from sympy import re
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
  
@@ -28,29 +27,51 @@ class Client:
 
 
     def sendHTTPRequest(self):
-        self.client.send(self.request.encode(FORMAT))
 
-        received_msg = self.client.recv(MSG_SIZE).decode(FORMAT)
-        print("SERVER>")
-        print(received_msg)
-
-        response_parser = ResponseParser(received_msg)
 
         if self.client_request.method == "POST" and response_parser.status == 200:
+            # self.client.send(self.request.encode(FORMAT))
+
+            # received_msg = self.client.recv(MSG_SIZE).decode(FORMAT)
+            # print("SERVER>")
+            # print(received_msg)
+            request_to_send = self.request
+            
             # read file data
-            file = open(self.client_request.file_name,"r")
-            data = file.read()
+            if file_exists(self.client_request.file_name):
+                file = open(self.client_request.file_name,"r")
+                data = file.read()
+
+                request_to_send += data
+
+                file.close()
+            else:
+                print("ERROR IN Client > File not found in client directory")
+                
 
             # upload file data to server
-            self.client.send(data.encode(FORMAT))
-            file.close()
+            self.client.send(request_to_send.encode(FORMAT))
+
+            received_msg = self.client.recv(MSG_SIZE).decode(FORMAT)
+            print("SERVER>")
+            print(received_msg)
+
             self.client.close()
         
-        elif self.client_request.method == "GET" and response_parser.status == 200:
+        elif self.client_request.method == "GET" :
+            self.client.send(self.request.encode(FORMAT))
+
+            received_msg = self.client.recv(MSG_SIZE).decode(FORMAT)
+            print("SERVER>")
+            print(received_msg)
+
+            response_parser = ResponseParser(received_msg)
+
+            if response_parser.status == 200 and response_parser.data!=None:
             #  download file in client directory
-            file = open(self.client_request.file_name,"w")
-            file.write(response_parser.data)
-            file.close()
+                file = open(self.client_request.file_name,"w")
+                file.write(response_parser.data)
+                file.close()
 
             self.client.close()
 

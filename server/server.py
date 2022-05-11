@@ -17,8 +17,8 @@ FORMAT = "utf-8"
 POST_REQUEST = "POST"
 GET_REQUEST = "GET"
 
-OK_RESPONSE = "HTTP/1.0 200 OK\r\n"
-NOT_FOUND_RESPONSE = "HTTP/1.0 404 Not Found\r\n"
+OK_RESPONSE = "HTTP/1.1 200 OK\r\n"
+NOT_FOUND_RESPONSE = "HTTP/1.1 404 Not Found\r\n"
 
 
 class Server:
@@ -70,13 +70,23 @@ class Server:
     def handle_post_request(self,conn,addr,client_request):
 
         conn.send(OK_RESPONSE.encode(FORMAT))
-        file = open(client_request.file_name,"w")
-        data = conn.recv(MSG_SIZE).decode(FORMAT)
-        file.write(data)
-        file.close()
+
+        # data = conn.recv(MSG_SIZE).decode(FORMAT)
+
+        filename = client_request.file_name
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "w") as f:
+            f.write(client_request.data)
+
+        # file_name = client_request.file_name.split("/")[-1]
+        # file = open(file_name,"w")
+        
+        # file.write(client_request.data)
+        # file.close()
+
         conn.close()
         print()
-        print(addr,"> ",data)
+        print(addr,"> ",client_request.data)
     
         
     def handle_get_request(self,conn,addr,client_request):

@@ -23,18 +23,20 @@ class Client:
         self.SERVER_PORT = port_number
         self.ADDR = (self.SERVER_IP,self.SERVER_PORT)
 
-        self.client = self.__connect()
+        self.client = None
+        try:
+            self.client = self.__connect()
+        except Exception as e:
+            print("ERROR : WRONG HOST NAME OR PORT NUMBER")
 
 
     def sendHTTPRequest(self):
+        if self.client == None:
+            print("ERROR : COULD NOT CONNECT TO SERVER")
+            return
 
-
-        if self.client_request.method == "POST" and response_parser.status == 200:
-            # self.client.send(self.request.encode(FORMAT))
-
-            # received_msg = self.client.recv(MSG_SIZE).decode(FORMAT)
-            # print("SERVER>")
-            # print(received_msg)
+        if self.client_request.method == "POST":
+        
             request_to_send = self.request
             
             # read file data
@@ -47,6 +49,8 @@ class Client:
                 file.close()
             else:
                 print("ERROR IN Client > File not found in client directory")
+                self.client.close()
+                return
                 
 
             # upload file data to server
@@ -69,7 +73,8 @@ class Client:
 
             if response_parser.status == 200 and response_parser.data!=None:
             #  download file in client directory
-                file = open(self.client_request.file_name,"w")
+                file_name = self.client_request.file_name.split("/")[-1]
+                file = open(file_name,"w")
                 file.write(response_parser.data)
                 file.close()
 
@@ -92,7 +97,7 @@ class Client:
             port_number = int(request_lines[3])
         else:
             port_number = 80
-        request = method+" "+file_name +" HTTP/"+str(httpVersion)+"\r\nHost:"+host_name+"\r\n\r\n"
+        request = method+" "+file_name +" HTTP/"+str(httpVersion)+"\r\nHost:"+host_name+":"+str(port_number)+"\r\n\r\n"
         return request,port_number
 
 
@@ -100,12 +105,27 @@ class Client:
 # START OF CLIENT
 if __name__=="__main__":
     
+    commands = []
+    if len(sys.argv) == 2:
+        file_name = sys.argv[1]
+        file = open(file_name,"r")
+        data = file.read()
+        # list of commands in input file
+        commands = data.split("\n")
+        file.close()
+        
+    else:
+        command = input(">")
+        commands.append(command)
+
     print("CLIENT STARTED")
 
-    command = input(">")
-
-    client = Client(command)
-    client.sendHTTPRequest()
+    for command in commands:
+        client = Client(command.strip())
+        client.sendHTTPRequest()
+        print("\n")
+        print("-------END OF COMMAND-------")
+        print("\n")
 
     print("CLIENT CLOSED")
 

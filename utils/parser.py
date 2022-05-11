@@ -11,25 +11,30 @@ class RequestParser:
 
         request_line_1 = request_header_lines[0].split(" ")
         self.method = request_line_1[0]
-        self.file_name = request_line_1[1].replace("/","")
+
+        request_line_1[1] = request_line_1[1].strip()
+        if request_line_1[1][0] == "/":
+            request_line_1[1][0] = ""
+            
+        self.file_name = request_line_1[1]
+
         if self.file_name == "":
             self.file_name = "index.html"
 
         
         self.httpVersion = request_line_1[2].split("/")[1]
 
-        self.host_name = request_header_lines[1].split("Host:")[1].strip()
+        host_port = request_header_lines[1].split(":")
+        self.host_name = host_port[1].strip()
+        self.port_number = int(host_port[2].strip())
+
+        # self.host_name = request_header_lines[1].split("Host:")[1].strip()
         self.header = request_header
 
         self.data = None
         if len(request_split) > 1:
             self.data = request_split[1]
     
-        
-    def createHTTPRequest(self,httpVersion= 1.0):
-        request = self.method+" / HTTP/"+str(httpVersion)+"\r\nHost:"+self.host_name+"\r\n\r\n"
-        return request
-
 
 
 class ResponseParser:

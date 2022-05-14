@@ -13,8 +13,10 @@ class RequestParser:
         self.method = request_line_1[0]
 
         request_line_1[1] = request_line_1[1].strip()
+        
         if request_line_1[1][0] == "/":
-            request_line_1[1][0] = ""
+            request_line_1[1] = request_line_1[1].replace("/","",1)
+        
             
         self.file_name = request_line_1[1]
 
@@ -24,9 +26,12 @@ class RequestParser:
         
         self.httpVersion = request_line_1[2].split("/")[1]
 
-        host_port = request_header_lines[1].split(":")
-        self.host_name = host_port[1].strip()
-        self.port_number = int(host_port[2].strip())
+        host_port_line = request_header_lines[1].split(":")
+        self.host_name = host_port_line[1].strip()
+        if len(host_port_line) > 2:
+            self.port_number = int(host_port_line[2].strip())
+        else:
+            self.port_number = 80
 
         # self.host_name = request_header_lines[1].split("Host:")[1].strip()
         self.header = request_header

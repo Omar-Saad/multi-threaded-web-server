@@ -30,7 +30,7 @@ class Server:
 
         self.server.bind(ADDR)
         self.server.listen()
-        print("server is listening on IP:",IP,"PORT:",PORT)
+        print("DEBUG : server is listening on IP:",IP,"PORT:",PORT)
 
     def start_server(self):
         while True:
@@ -40,13 +40,13 @@ class Server:
             thread = threading.Thread(target=self.handle_client,args=(conn,addr))
             thread.start()
             # show number of active threads (connections)
-            print("Number of active connections (threads)",(threading.active_count()-1))
+            print("DEBUG : Number of active connections (threads)",(threading.active_count()-1))
     
 
     
 
     def handle_client(self,conn,addr):
-        print("Client connected from:",addr)
+        print("DEBUG : Client connected from:",addr)
         
         msg = conn.recv(MSG_SIZE).decode(FORMAT)
         print(addr,">",msg)
@@ -58,12 +58,12 @@ class Server:
         
         if client_request.method == POST_REQUEST:
             self.handle_post_request(conn,addr,client_request)
-            print("Client disconnected from:",addr)
+            print("DEBUG : Client disconnected from:",addr)
             return
 
         elif client_request.method == GET_REQUEST:
             self.handle_get_request(conn,addr,client_request)
-            print("Client disconnected from:",addr)
+            print("DEBUG : Client disconnected from:",addr)
             return
 
 
@@ -92,13 +92,15 @@ class Server:
     def handle_get_request(self,conn,addr,client_request):
         
         if not file_exists(client_request.file_name):
-            conn.send(NOT_FOUND_RESPONSE.encode(FORMAT))
+            print("DEBUG: file not found")
+            msg = NOT_FOUND_RESPONSE + "\r\n"
+            conn.send(msg.encode(FORMAT))
             conn.close()
             return
         else:
 
             msg = OK_RESPONSE+"\r\n"
-
+            print(client_request.file_name)
             file = open(client_request.file_name,"r")
             data = file.read()
             msg = msg+data+"\r\n"
@@ -113,7 +115,7 @@ class Server:
 
 
 if __name__=="__main__":
-    print("SERVER STARTED")
+    print("DEBUG : SERVER STARTED")
     server = Server()
     server.start_server()
     print("SERVER STOPPED")

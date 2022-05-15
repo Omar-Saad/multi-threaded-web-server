@@ -1,13 +1,13 @@
-from utils.parser import RequestParser
+
 from os.path import exists as file_exists
 import socket
 import threading
 import sys
 import os.path
-from time import sleep
+
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-
+from utils.parser import RequestParser
 
 # IP = socket.gethostbyname(socket.gethostname())
 
@@ -166,14 +166,19 @@ class Server:
             return
         else:
             # if file exists then send 200 OK and file content
-
+            
             msg = OK_RESPONSE+"\r\n"
-
+           
             file = open(client_request.file_name, "r")
+            
+        
             data = file.read()
+            
+            
             msg = msg+data+"\r\n"
 
             conn.send(msg.encode(FORMAT))
+        
 
             file.close()
 

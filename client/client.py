@@ -1,4 +1,3 @@
-from utils.parser import *
 from http import client
 import socket
 import sys
@@ -8,6 +7,7 @@ from os.path import exists as file_exists
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 
+from utils.parser import *
 
 # constants
 MSG_SIZE = 1024

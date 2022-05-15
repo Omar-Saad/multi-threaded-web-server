@@ -1,3 +1,6 @@
-GET / google.com 80
 GET / 127.0.0.1
+POST s.txt 127.0.0.1 80
+POST a/test.txt 127.0.0.1 80
+GET m 127.0.0.1
+GET s.txt 127.0.0.1
 GET / info.cern.ch 80
